@@ -1,0 +1,88 @@
+### Selector类介绍
+
+一个多路复用的SelectableChannel对象。
+
+调用Selector#open方法创建selector实例，会使用系统默认的selector provider来创建
+一个selector.也还可以通过调用客户端提供的openSelector方法来创建selector实例。
+selector会保持open状态直到调用close方法。
+
+可选择管道中注册的selector是由Selection对象表示的。selector持有三种选择键集合：
+* keys集合：该集合包含的key代表在当前channel中注册的所有selector，该集合可以通过keys方法返回。
+* selected-key集合：在上一次select操作期间，我们会设置感兴趣的操作标示符
+（OP_READ, OP_WRITE, OP_CONNECT, OP_ACCEPT），那么channel会根据设置来选择准备好
+的操作key存放到这个selected-key集合中。selectedKeys方法返回这个集合。它永远都是keys的子集。
+* cancelled-key集合：它的集合元素key已经被取消但是对应的管道还没有被注销。该集合不能直接访问。它永远是keys的子集。
+
+在刚创建的selector中这三个集合都是空集。
+
+调用channel的register方法注册管道的作用就是对应的key被添加到keys集合中。`在select操作时取消key会从该集合中移除（不懂，因为我调试代码时keys中的集合不会因为该操作
+将key从该集合中移除）`。keys集合不会被直接修改。
+
+当key被取消时会被添加到选择器的cancelled-key集合中，不管是调用管道的close方法还是key的cancel方法来取消这个键。取消一个键会导致它的管道在下次选择操作时被撤销,并
+且同时该key会从选择器的所有key集合中移除。
+
+通过select操作将key添加到selected-key集合中。调用集合的remove或iterator的remove方法都会将key从selected-key集合中移除。除此之外,key不会从selected-key集合中移除。key也不能直接添加到selected-key集合中。
+
+**选择操作**
+
+在选操作过程中，键可能会被添加或从selector的集合中移除。选择操作的方法有select(), select(long)和selectNow()，调用的三个步骤为：
+* cancelled-key集合中的每个键会从它所在的集合中移除掉，且键对应的管道会被注销。该步骤使得cancelled-key集合为空。
+* 底层操作系统为剩下的管道在执行select操作之前为敏锐的操作标示key兴趣集做查询更新。对每个管道它应该准备好以下的一个操作，以下两个动作将会得到执行：
+    * 如果管道的key在selected-key集合中没有准备好，那么它被添加到它的准备操作集合中，该集合被修改来明确表明这些操作对于这些管道
+	      现在已经准备好了。任何之前敏捷的纪录在该准备集合中都会被抛弃。
+	* 否则管道的key在selected-key集合中准备好了，所以它的准备集合被修改来表明任何对于这个管道新的操作都是已经准备好了的。在该准备集合中之前的任何敏感信息都会被屏蔽掉。在该步骤开始之前如果所有的集合都为空且兴趣集也为空，那么selected-key集合和准备操作集合都不会更新。
+	* 如果任何key在步骤b中被添加到cancelled-key集合中那么他们会在步骤a中被处理。
+不管选择操作阻塞是为了等待更多的管道变得准备好，阻塞时间是否够长是基于这三个选择方法的。
+
+**并发性**
+
+选择器它们自己在多线程环境下是线程安全的，然而它们的key集合却不是。
+
+选择操作在选择器中是同步的，以key集合，selected-key集合这样的顺序。cancelled-key集合在上面的步骤a)和b)中也是同步的。
+
+当选择操作正在执行的时候改变选择器的兴趣集对选择操作没有任何的影响；但它会对下次选择操作有影响。
+
+可能在某个时候键被取消且它的管道被关闭了，但key可能还会存在选择器的其他集合中这并不意味着这个键还是有效的或者它的管道还是打开的。应用程序代码应该必须小心的同步并检查这些条件，因为可能有其他的线程会取消这个键或者关闭了它的管道。
+
+一个线程会在select()或select(long)方法阻塞，可能会被其他线程在以下三个方法中中断：
+* 调用选择器的wakeup方法
+* 调用选择器的close方法，或者
+* 调用阻塞线程的interrupt方法，这种情况下线程的中断标志位会被设置并且选择器的wakeup方法会被调用。
+
+选择器的close方法是同步的，在一次选择操作中三个键集合的顺序相同。通常，选择器的键和selected-key在多线程同步中不是安全的。如果一个线程想直接修改这些集合，那么它的访问应该被集合自身的同步控制。iterator迭代器可以通过集合的iterator方法返回。如果在得到iterator后集合被修改，如果调用迭代器的remove方法修改之外，都会抛出
+ConcurrentModificationException异常。
+
+**方法介绍**
+
+    public static Selector open()throws IOException
+
+打开一个selector；使用系统默认的SelectorProvider对象的openSelector方法
+创建一个selector实例。
+
+    public abstract int select()throws IOException
+
+选择一组key集合，这些key符合准备好I/O操作了。这个方法执行一个阻塞的选择操作。只有当至少一个管道被选择之后它才会返回，还有当选择器的wakeup方法调用，或者当前线程被中断，不管是哪个都会导致这个方法返回。
+
+    public abstract int select(long timeout)throws IOException
+
+选择已经准备好做I/O操作的一组键的集合。这个方法执行一个阻塞的选择操作。它的返回条件有以下几种：
+* 至少一个管道被选择；
+* 选择器的wakeup方法被调用；
+* 当前线程被中断；
+* 规定的时间超时了。这个方法不提供确定的时间保证，它安排时间超时是通过调用Object#wait(long)方法实现的。
+
+
+    public abstract int selectNow()throws IOException
+
+选择已经准备好做I/O操作的一组键的集合。这个方法执行非阻塞的选择操作。如果只从上
+次选择操作之后没有管道变得可选择，那这个方法会立刻返回0.调用这个方法会清除wakeup方法的任何效果。
+
+    public abstract Selector wakeup()
+
+使第一次选择操作还没有返回的方法立刻返回。如果其他线程正阻塞于select()或
+select(long)方法的调用，那么这个调用将会让它们立刻返回。如果当前没有选择操作正在执行那么下次调用任何的select方法会立刻返回，除了selectNow()方法的调用。该方法的返回值可能是非0。之后的select()或select(long)方法调用会和平时一样将会阻塞除非在调用该方法一次。在两次选择操作期间调用该方法多次的效果和调用一次的效果是一样的。
+
+    public abstract void close() throws IOException
+
+关闭这个selector.如果此时有线程被阻塞在select方法那里，那么它会被中断，相当
+于调用选择器的wakeup方法。任何没有取消的key与之关联的选择器将会无效，它们的管道将会被注销，任何与该选择器相关的资源都会得到释放。如果这个选择器已经关闭了那么调用这个方法没有任何影响。当一个选择器关闭后，任何想要使用它，除了调用这个方法或wakeup方法外，都会造成ClosedSelectorException异常抛出。
