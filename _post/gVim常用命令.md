@@ -1,0 +1,111 @@
+### 编辑
+i &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#在当前字符前插入
+
+I &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#在行首插入
+
+a &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#在当前字符后插入
+
+A &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#在行末插入
+
+o &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#在当前光标下行插入
+
+O &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#在当前光标上行插入
+
+J &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#把下一行并入当前行
+
+:w &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#将编辑的数据写入硬盘文件中
+
+:w! &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#强制将数据写入文件中，能不能写入成功与你对该文件的权限有关
+
+:q &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#退出gVim
+
+:q! &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#强行退出gVim，常用于编辑了文件但没保存就退出gVim的情况，此时修改的数据不会写入文件中
+
+:wq &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#保存并退出
+
+:e! &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#将文件恢复到最原始的状态
+
+:set number &emsp;&emsp;&emsp;&emsp;#显示行号
+
+### 查找
+/word &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#从当前光标之后内容查找名称为word的字符串
+
+?word &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#从当前光标之前内容吵着名称为word的字符串
+
+n &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#英文按键n，表示【重复前一个查找动作】。比如我刚刚执行了/word向下查找word字符串，按下n之后，表示继续向下查找word字符串
+
+N &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#意思与n完全相反，如果我刚刚执行了/word查找后，按下N表示向上查找word字符串
+
+### 删除（剪切）
+x &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除当前字符
+
+X &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除前一个字符
+
+dw &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除当前字符所在单词包括词尾空格
+
+dd &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除当前行
+
+d$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除当前字符到本行尾（$是一个字符）
+
+:m,n d &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除m~n行
+
+:nd &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#删除第n行
+
+**注意：任何删除命令删除的内容都在buffer中，可以进行粘贴。**
+
+### 光标移动
+h=前, j=下, k=上, l=后   （也可以在命令前加数字，比如3h表示向前移动3格）
+
+### 复制，粘贴和撤销
+v &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#字符选择，会将光标经过的地方反白选择
+
+V &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#行选择，会将光标经过的行反白选择
+
+Ctrl+V &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#区块选择，可以用长方形的方式选择需要复制的内容
+
+y &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#将反白的地方复制起来
+
+yy &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#复制当前行
+
+:m,n cp x &emsp;&emsp;&emsp;&emsp;&emsp;#将m~n行内容复制到x行之后
+
+:m,n move x &emsp;&emsp;&emsp;&emsp;#将m~n行内容移动到x行之后
+
+p &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#粘贴到光标之后
+
+P &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#粘贴到光标之前
+
+u &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#撤回之前的操作
+
+### 多文件编辑按键
+:n &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#编辑下一个文件
+
+:N &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#编辑上一个文件
+
+:files &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#列出目前这个gVim开启的所有文件
+
+### 多窗口编辑按键
+:sp filename &emsp;&emsp;&emsp;&emsp;#开启一个新窗口，如果有加filename,表示在新窗口开启一个新文件，否则表示两个窗口为同一个文件内容
+
+Ctrl + wj &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#按键的按法是：先按下Ctrl不放，在按下w后放开所有的按键，然后再按下j,则光标可移动到下方的窗口
+
+Ctrl + ww &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#光标移到上方窗口
+
+Ctrl + wq &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#其实就是：q结束离开，举例来说，如果我想要结束下方的窗口，先利用Ctrl + wj移动到下方窗口后，按下:q即可离开
+
+### 附件：gVim环境设置
+:set nu &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#设定行号
+
+:set hlsearch &emsp;&emsp;&emsp;&emsp;#设定是否将查找到的字符串反白
+
+:set autoindent &emsp;&emsp;&emsp;#设定是否自动缩进
+
+:set backup &emsp;&emsp;&emsp;&emsp;&emsp;#设定是否自动存储备份文件，如果设定，当修改源文件时，会在同目录下生成一个filename～文件来记录原始文件内容
+
+:set showmode &emsp;&emsp;&emsp;&emsp;#设定是否要显示--INSERT--之类的字眼在左下角的状态列
+
+:set all &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;#显示目前所有的环境参数设定值
+
+:syntax (off|on) &emsp;&emsp;&emsp;#是否根据程序相关语法显示不同颜色？
+
+**为了不用每次都设定gVim环境，我们可以通过设定文件来直接规定我们习惯的gVim操作环境。整体gVim的设定值在/etc/vimrc文件中，我们不要直接修改它。我们可以在账号的家目录~/.vimrc文件中设定自己喜欢的gVim操作环境，这个文件默认不存在，需要你自己动手创建**
