@@ -1,0 +1,178 @@
+github博客要求用标记语言来写，所以学习下markdown的基础知识。首先说明，说有的语法都按照引用形式给出。
+
+推荐一个markdown在线编辑器，可以实现实时预览编写的内容----->[markdown在线编辑器](http://dillinger.io/)
+
+# 1. 标题
+markdown支持两种标题语法，settext和atx。
+
+settext形式：利用底线形式，用 = （第一级标题） 和 -（第二级标题）作为底线形式的标记，标记个数是一个或一个以上。
+
+atx形式：在行首插入1到6个#，对应标题的1到6级。
+
+语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_1.png?raw=true)
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_2.png?raw=true)
+
+效果(第一种是用settext形式实现的，第一种是用atx形式实现的)
+
+First Level Header
+==================
+Second Level Header
+------------------
+
+# Header1
+## Header2
+---
+# 2. 引用
+文章中引用到别人的话时，为了和原文区别开来，可以用引用标记特别注明。引用标记为`>`（右尖括号）。可以在引用段落前加一个，也可以在段落每行前面加一个。如果引用右几个段落组成，引用段落之间需要加一个`>`来区分引用不同的段落。
+
+语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_9.png?raw=true)
+
+效果
+> This is a blockquote.
+>
+> This is the second paragraph in the blockquote.
+>
+> ## This is an H2 in a blockquote.
+---
+
+# 3. 段落
+一篇文章由很多段落组成，一个段落由很多行组成。markdown通过`一个以上`的空行区别不同的段落。只要是空行，不管这个空行是由Tab键形成的，还是通过空格形成的，一律视为空行。
+
+多个空格会被看成一个空格。如果段落第一行需要缩进的话可以用`&emsp;`或`&ensp;`
+
+语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_3.png?raw=true)
+
+效果
+
+&emsp;&ensp;这是段落的第一行，前面有两个缩进。
+
+这是另外一个段落，在markdown中它与第一个段落之间有一个空行。
+
+---
+# 4. 强调
+markdown使用星号和底线标记强调区段。在强调部分前加上标记，在强调部分结束后加上标记限制强调范围。注意星号与强调内容之间不能有空格存在，不然就是另外一种功能了。
+
+语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_4.png?raw=true)
+
+效果
+
+*我是一个星号强调的* 或 _我是一个底线强调的_
+
+**我是两个星号加重强调的** 或 __我是两个底线加重强调的__
+
+***我是三个星号特别强调的*** 或 ___我是三个底线特别强调的___
+
+---
+# 5. 列表
+列表分为无序列表和有序列表，无序列表使用星号、加号和减号三种中的任意一种作为无序列表的项目标记，三种也可以混合使用，但是不建议这样做。`注意标记和内容之间必须至少一个空格`；有序列表使用数字和一个英文.作为标记，注意数字和.之间不能有空格， .和内容之间至少有一个空格。
+
+无序列表语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_5.png?raw=true)
+
+无序列表效果
+
+* 无序列表中的第一项
+    * 子项，以一个Tab键或者4个空格缩进
+* 无序列表的第二项，我用星号实现的
++ 无序列表的第三项，我用加号实现的
+- 无序列表的第四项，我用减号实现的
+
+有序列表语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_6.png?raw=true)
+
+有序列表效果
+
+1. 有序列表第一项
+2. 有序列表第二项
+---
+# 6. 链接
+markdown支持两种形式链接语法：1）行内插入链接；2）内容行内插入链接
+
+行内插入链接语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_7.png?raw=true)
+
+行内插入链接效果
+
+[这系github的官网](http://www.github.com)
+
+内容行内插入链接，格式为
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_8.png?raw=true)
+
+内容行内插入链接效果
+
+[点击查看访问量][1]
+
+[1]: http://www.github.com "github"
+---
+# 7. 图片
+插入的图片可以是网络图片，也可以是本地图片。
+
+语法
+
+![alt text][url "hit"]
+
+效果
+
+可以显示网络图片，但是本地图片不能显示，具体原因还在排查。
+
+---
+# 8. 代码
+代码显示有两种方式，一种是用反引号`(Tab上面的那个键)将代码括起来；另一种是代码行首至少4个空格缩进的行。
+
+反引号效果图
+
+`public class Test`
+
+行首4个空格缩进效果图
+
+    public class Test {
+        public static void main(String[] args) {
+            System.out.println("hello world");
+        }
+    }
+很显然，第二种代码显示的效果更好喽。
+
+---
+# 9. 水平分割线
+要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。
+
+效果
+***
+hello
+---
+world
+___
+welcome
+
+end. updating...
+
+# 10. 表格
+Markdown的表格算是比较复杂的，处理表格时经常会设置对齐方式，单元格合并问题，那么Markdown是如何设置表格对齐了？它是需要在对应列的分割线左右添加冒号:来执行列的对齐方式，规则如下：
+* 冒号在左：在分割线的左边说明此列左对齐
+* 冒号在右：在分割线的右边说明此列右对齐
+* 在分割线的左右两边都有冒号：说明此列居中
+
+语法
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/01/md_article_10.png?raw=true)
+
+效果
+
+|   Tables  |   Are |   Cool    |
+|   --------|:-----:|----------:|
+|   col 3 is|   right-aligned|  $1600|
+|   col 2 is|   centered|   $12|
+|   zebra stripes|  are neat|  $1|
