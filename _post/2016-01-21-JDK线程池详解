@@ -1,0 +1,242 @@
+### JDK线程池框架详解
+
+Executors是JDK为我们提供控制多个线程的框架，它扮演者线程池工厂的角色，通过Executors可以取得一个特定功能的线程池ThreadPoolExecutor.先介绍Executor族的继承/实现关系
+
+* Executor 一个接口类，它可以执行提交的Runnable任务；唯一的方法是void execute(Runnable command)
+* ExecutorService一个接口类，它继承了Executor接口，除了继承的execute方法，它还提供结束线程和跟踪一个或多个处理异步任务并返回能控制线程的Future实例，它的方法介绍
+    * void shutdown()   #发起顺序关闭之前提交并执行了的任务计划，不再接收新的任务。当调用该方法后任何接收新任务的方法都会无效，这个方法不会等待之前提交的任务完全执行，使用awaitTermination方法可以实现等待任务链表中的任务执行完毕
+    * List<Runnable> shutdownNow()  #尝试去停止所有正在执行的任务，停止处理等待中的任务，返回一个等待执行的任务链表。该方法不会等待正在执行的任务终止，使用awaitTermination方法可以实现等待任务链表中的任务执行完毕。在尽最大努力下，该方法不会保证尝试去停止正在处理运行的任务，例如，典型的通过Thread.interrupt来实现取消任务，所以，任何未能响应中断的任务可能永远不会终止
+    * boolean awaitTermination(long timeout, TimuUnit unit) #在shutdown请求后处于阻塞，直到所有的任务都完全执行，或者超时，或者当前线程被中断
+    * Future<?> submit(Runnable task)   #提交一个Runnable任务来执行，返回代表该任务的Future实例，当任务执行完毕后Future的所有方法都返回NULL
+    * <T> Future<T> submit(Callable<T> task)    #提交一个有返回值的任务来执行，并返回代表这个不确定结果任务的Future对象。当任务成功执行后Future的方法会返回task的结果（小插曲：Callable和Runnable的区别，Runnable的run方法不会抛出异常，没有返回值；而Callable的call方法会抛出Exception异常并有返回值，所以当submit方法传递Callable时返回的Future通过调用call方法可以得到Callable的返回值）
+* ThreadPoolExecutor 实现了ExecutorService接口，它是一个线程池类，下面介绍Executors创建多种线程池其实都是对ThreadPoolExecutor的包装
+* Executors扮演着线程池工厂的角色，通过Executors可以取得一个特定功能的线程池，方法介绍
+    * newFixedThreadPool(int nThreads)  #创建一个线程池，里面有nThread个线程来处理无界任务队列中的任务；任何时候，最多只有nThread个线程同时处理任务，如果一个任务提交时没有空闲的线程，这个任务会被存储在任务队列中直到有空闲线程为止；线程在执行时因为非正常原因导致该线程终止，会有其他线程来代替它执行后续的任务；当调用shutdown方法后线程池中的线程会退出
+    * newSingleThreadExecutor() #创建一个线程池，这个线程池中只有一个线程来处理无界队列中的任务（注意：如果在这个唯一的线程执行任务时由于非正常原因导致线程退出，若任务队列还有其他任务需要处理，一个新的线程会被创建）；任务都会得到有序的执行，同一时刻不会有多个任务同时被执行，与它等效的newFixedThreadPool(1)返回的线程池也能保证任务的有序执行，但当这个唯一线程因为非正常原因退出时不会创建新的线程来代替它
+    * newCachedThreadPool() #创建一个线程池，这个线程池会先创建一些需要的线程，当之前创建的线程可用时优先使用之前创建的线程；这是个典型的线程池，它使得程序能短暂的异步执行任务，提高程序的性能；调用execute方法会重新使用之前创建好的空闲线程，如果不存在空闲的线程，一个新的线程将会被创建并被添加到线程池中；六秒钟内如果线程不被使用，那就会被从线程池中移除掉；这样线程池在长时间保留空闲线程时就不会消耗太多的资源；注意：一个线程池有一些相同的属性，但是又有一些不同的细节，它们都是用ThreadPoolExecutor构造方法构造线程池
+    * newSingleThreadScheduledExecutor()    #创建一个单一的线程池，它允许安排命令在给定的时间之后执行，或者周期性的执行（注意：如果这个单一线程由于非正常原因被终止，一个新的线程将会取代它的位置并会执行剩下的队列中的任务，它等效于newScheduledThreadPool(1)返回的线程池，但是当该线程池唯一的线程挂掉之后不会创建新的线程来执行它后续的任务）
+    * newScheduledThreadPool(int corePoolSize)  #创建一个线程池，它可以安排任务在指定时间之后执行，或者定期的执行。线程池中会一直保存corePoolSize个线程，即使它们都没有任务执行
+
+***后面两种创建线程池的方法都返回了ScheduledExecutorService，它继承ExecutorService；关于ExecutorService介绍***
+
+>一个ExecutorService实例，可以安排命令在指定的时间后执行，或者周期性的执行；在
+>schedule方法中传递不同的delay参数来创建任务并返回任务对象，该对象可以用来取消
+>或者检查执行状况；scheduleAtFixedRate和scheduleWithFixedDelay两个方法创建并周
+>期性的执行任务，直到任务取消为止。使用Executor的execute或者ExecutorService的
+>submit方法来提交任务，使用后者时相当于传递了delay=0的参数一样。0和负数可以作为>schedule方法的参数，此时该任务被当做请求立刻执行。
+
+***所有的schedule方法都接收一个相对的时间（相对于当前时间），而不会接受绝对的时间或日期。把Date代表的绝对时间装换为相对时间是容易的。简单用法到API上查找***
+
+#### 源码解析
+
+***线程池参数介绍***
+
+通过源代码可知，上面介绍的线程池底层都是初始化了一个ThreadPoolExecutor()实例，这个类有以下参数，先介绍下
+* int corePoolSize  指定了线程池中的线程数量
+* int maximumPoolSize   指定了线程池中的最大线程数量
+* long keepAliveTime    当线程池数量超过corePoolSize时，多余的空闲线程的存货时间，即，超过corePoolSize的空闲线程，在多长时间内会被销毁
+* TimeUnit unit keepAliveTime的单位。
+* BlockingQUeue<Runnable> workQueue 任务队列，被提交但尚未被执行的任务
+* ThreadFactory threadFactory   线程工厂，用于创建线程，一般用默认的即可
+* RejectedExecutionHandler handler 拒绝策略，当任务太多来不及处理，如何拒绝任务
+
+***任务队列workQueue根据功能分为以下几种***
+
+* 直接提交的队列：它由SynchronousQueue对象实现，SynchronousQueue没有容量，每一个插入操作都要等待一个相应的删除操作，反之，每一个删除操作都要等待对应的插入操作。SynchronousQueue不保存任务，它总是将任务提交给线程执行，如果没有空闲的线程，则尝试创建新的线程，如果线程数量已经达到最大值，则执行拒绝策略。newCachedThreadPool()就是使用SynchronousQueue策略
+* 有界任务队列：有界的任务队列可以使用ArrayBlockingQueue实现，因为有界，所以在初始化时必须要指定一个参数，表示该队列的最大容量。使用有界队列时，若有新的任务需要执行，当线程池中的实际线程数小于corePoolSize时，会优先创建新的线程，若大于corePoolSize，则会将新任务添加到队列中等待，若队列已满，无法加入，在总线程数不大于maximumPoolSize前提下，创建新的线程执行任务。若大于maximumPoolSize，则执行拒绝策略
+* 无界任务队列：由LinkedBlockingQueue实现，与有界任务队列相比，除非系统资源耗尽，否则无界队列不存在任务入队失败的情况。当有新的任务到来，系统的线程数小于corePoolSize时，线程池会生成新的线程执行任务，当线程数到达corePoolSize后，不会继续创建线程；若有新的任务加入，而又没有空闲的线程资源，则任务直接入队等待，若任务创建和处理的速度差异很大，无界队列会保持快速增长，知道耗尽系统内存。newFixedThreadPool和newSingleThreadExecutor都使用LinkedBlockingQueue做任务队列
+* 优先队列：优先任务队列带有执行优先级别的，通过PriorityBlockingQueue实现，可以控制任务的执行先后顺序，是一个特殊的无界队列。PriorityBlockingQueue可以根据任务自身的优先级别顺序先后执行
+
+***拒绝策略***
+
+* AbortPolicy : 直接抛出异常，阻止系统正常工作
+* CallerRunsPolicy : 只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务
+* DiscardOledestPolicy : 将丢弃最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务
+* DiscardPolicy : 默默地丢弃无法处理的任务，不予任何处理
+
+上面介绍的几种线程池都是用系统默认的AbortPolicy策略
+
+
+
+***ThreadPoolExecutor源码解析***
+
+它是主要的线程池，管理者线程的状态，ctl（一个AtomicInteger，用来包装下面的两个属性概念）
+* workerCount&nbsp;&nbsp;&nbsp;表示当前有效的线程数
+* runState&nbsp;&nbsp;&nbsp;表示线程running, shutting down等状态值
+
+我们限制有效线程数量为（2^29）-1（大约有500百万）个线程数而不是（2^31）-1（2十亿）个线程
+
+workerCount表示worker的数量，即允许start但是不能stop的数量。它的值可能会与真实的有效线程数有些差别，比如在请求线程工厂创建线程时失败了，或者有些线程在terminate之前依然被阻塞。用户可见的线程池数量是当前worker集合的数量
+
+runState提供了主要的生命周期控制，它有以下值：
+* RUNNING&nbsp;&nbsp;&nbsp;接收新的任务并处理队列中的任务
+* SHUTDOWN&nbsp;&nbsp;&nbsp;不在接收新的任务，但是还要处理队列中的任务
+* STOP&nbsp;&nbsp;&nbsp;不在接收新的任务，也不在处理队列中的任务，中断正在处理的任务
+* TIDYING&nbsp;&nbsp;&nbsp;所有的任务都被终止，workerCount为0，线程会执行terminated()锁方法将状态值过渡到TIDYING
+* TERMINATED&nbsp;&nbsp;&nbsp;terminated()方法执行完成
+
+线程的状态值处于上面这些状态代表的值之间，为了有序的比较,runState会随着时间单调的增加，但不必等于某个状态值。runState的值过渡如下
+* RUNNING ->SHUTDOWN&nbsp;&nbsp;&nbsp;调用了shutdown()方法，也许暗中在finalize()方法中调用
+* (RUNNING or SHUTDOWN)->STOP&nbsp;&nbsp;&nbsp;调用了shutdownNow()方法
+* SHUTDOWN->TIDYING&nbsp;&nbsp;&nbsp;当任务队列和线程池都为空时
+* STOP->TIDYING&nbsp;&nbsp;&nbsp;当线程池为空时
+* TIDYING->TERMINATED&nbsp;&nbsp;&nbsp;当terminated()锁方法完成时
+
+***线程在awaitTermination()方法中等待时当状态为TERMINATED时将会返回***
+
+***介绍线程池中的状态值***
+
+* AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0)); &nbsp;&nbsp;&nbsp;封装了当前有效线程数和状态值，初始值为-536870912，也就是RUNNING的值
+* int COUNT_BITS = Integer.SIZE - 3;&nbsp;&nbsp;&nbsp;初始值29
+* int CAPACITY = (1 << COUNT_BITS) - 1;&nbsp;&nbsp;&nbsp;初始值536870911
+
+runState值
+* int RUNNING = -1 << COUNT_BITS;&nbsp;&nbsp;&nbsp;初始值-536870912
+* int SHUTDOWN = 0 << COUNT_BITS;&nbsp;&nbsp;&nbsp;初始值0
+* int STOP = 1 << COUNT_BITS;&nbsp;&nbsp;&nbsp;初始值536870912
+* int TIDYING = 2 << COUNT_BITS;&nbsp;&nbsp;&nbsp;初始值1073741824
+* int TERMINATED = 3 << COUNT_BITS;&nbsp;&nbsp;&nbsp;初始值1610612736
+
+***ctl的包装和拆箱方法***
+
+int runStateOf(int c) {
+	return c & ~CAPACITY;
+}&nbsp;&nbsp;&nbsp;得到状态值
+
+int workerCountOf(int c) {
+	return c & CAPACITY;
+}&nbsp;&nbsp;&nbsp;得到有效线程数
+
+int ctlOf(int rs, int wc) {
+	return rs | wc;
+}&nbsp;&nbsp;&nbsp;对ctl的拆箱
+
+***任务提交源码解析***
+
+* public void execute(Runnable command);&nbsp;&nbsp;&nbsp;这个方法处理任务分为以下三步
+    * 如果当前有少于corePoolSize个线程在运行，那么尝试开启一个新的线程并让command作为它第一次执行的任务。调用addWorker()方法会自动检查runState和workerCount是否合法，为了防止线程池不接收线程时把它添加到池中造成的警告错误，此时addWorker方法应该返回false
+    * 如果任务成功添加到队列，此时我们仍然需要再次检查是否应该添加一个线程（可能存在上次检查之后一个线程挂掉了的情况），或者在进入这个方法时线程池已经shutdown了；所以我们需要重新检查线程池的状态，当线程池停止时需要回滚任务队列
+    * 如果我们的任务不能进入队列，此时我们尝试添加新的线程。如果添加失败，此时我们应该shutdown或者任务队列是饱和的，所以需要执行拒绝策略拒绝任务
+
+代码实现
+
+* 拿到当前ctl的值，然后调用workerCountOf()得到当前有效线程数，若小于corePoolSize，调用addWorker()方法处理任务
+
+***addWorker(Runnable firstTask, boolean core)方法实现***
+
+    int c = ctl.get(); // c = -536870912
+    int rs = runStateOf(c); // rs = -536870912
+
+执行检查
+
+    if(rs >= SHUTDOWN && !(rs == SHUTDOWN && firstTask == null &&                      !workQueue.isEmpty()))//判断了线程池的状态和队列是否已满，开始会返回false,所以接着执行
+    int wc = workerCountOf(c); // wc=0,因为是第一个任务，所以之前没有活动的线程
+    if(wc >= CAPACITY || wc >= (core? corePoolSize : maximumPoolSize))
+
+这里判断当前线程数是否大于队列容量，或者大于corePoolSize，或者最大线程数maximumPoolSize，如果满足，return false.不满足，接着执行
+
+    compareAndIncrementWorkerCount(c)//把ctl的值加1，跳出retry;
+    boolean workerStarted = false;
+    boolean workerAdded = false;
+    Worker w = null;
+
+>以Runnable firstTask作为参数，创建一个Worker;Worker是ThreadPoolExecutor的一个>>内部类，它实现了Runnable，查看它的属性，它有一个Thread >thread属性，用来接收线程工厂创建的新线程；一个Runnable >firstTask，代表我们提交的，需要执行的任务；这个任务在线程工厂创建新线程时会包
+>装我们提交的任务，查看线程工厂创建线程的方法
+
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(group, r, namePrefix +                                       threadNumber.getAndIncrement(), 0);
+        .......
+        return t;
+    }
+所以它可以作为执行任务的线程。查看Worker的代码，果然它内部维护着一个Runnable firstTask的属性，然后在它的run方法中执行了这个firstTask
+
+    w = new Worker(firstTask);
+    final Thread t = w.thread;
+    if(t != null) {
+        final ReentrantLook mainLock = this.mainLock;
+        mainLock.lock();  // 在执行任务期间锁住
+        int rs = runStateOf(ctl.get()); // 取得runState的值，再次检查线程的状态
+        if(rs < SHUTDOWN || (rs == SHUTDOWN && firstTask == null)) {
+            if(t.isAlive())  //可能是终止线程时线程被阻塞了，没有被终止
+                throw new IllegalThreadStateException();
+            workers.add(w);  //把线程放到线程池中
+            int s = workers.size();
+            if(s > largestPoolSize)
+            largestPoolSize = s;
+            workerAdded = true;
+        }
+    } finally {
+        mainLock.unlock();  //释放锁
+    }
+    if(workerAdded) {  //线程成功添加后，执行线程
+        t.start();
+        workerStarded = true;
+    }
+
+***到此，整体的逻辑是这样的：根据Runnable firstTask创建一个Worker实例，在Worker中
+会把任务赋值给她的firstTask属性，同时会以Worker实例作为参数到线程工厂中生成一个新的线程thread，即会在新创建线程thread的run方法中会执行Worker中的firstTask任务，然后把创建的Worker添加到线程池集合中，当成功添加后，会执行Worker中的thread线程，此时firstTask也会得到执行***
+
+***对象介绍***
+
+* Worker&nbsp;&nbsp;&nbsp;封装刚提交的任务firstTask和新创建的线程thread
+    * Runnable firstTask&nbsp;&nbsp;&nbsp;新提交的任务
+	* Thread thread&nbsp;&nbsp;&nbsp;新创建的线程
+    * HashSet<Worker> workers&nbsp;&nbsp;&nbsp;包含了池中的所有worker线程，只有在持有mainLock锁的情况下才能访问
+
+***线程池方法介绍***
+
+ThreadPoolExecutor线程池如何shutdown
+
+shutdown主要代码，只是主要代码
+public void shutdown() {
+	advanceRunState(SHUTDOWN);
+	interruptIdleWorkers();
+	onShutdown();
+
+	tryTerminate();
+}
+
+advanceRunState(int targetState); 将线程池的状态过渡到给定的状态值，或者当前状态值在给定状态值后时忽略该操作。ThreadPoolExecutor定了了5中状态值，按照值的排序是：
+RUNNING > SHUTDOWN > STOP > TIDYING > TERMINATED
+也就是说，如果当前runState = STOP，而给定的目标状态是SHUTDOWN时，满足
+runState >= targetState，所以此时会忽略该操作。
+
+实现代码：
+private void advanceRunState(int targetState) {
+	for() {
+		int c = ctl.get();  //得到当前状态值
+		if(runStateAtLeast(c, targetState) || ctl.compareAndSet(c, ctlOf(targetState, )))
+	}
+}
+先检查状态值，如果符合要求ctl.compareAndSet(int expect, int update)就不做了，否则更新线程池的状态值
+
+interruptIdleWorkers(); 中断正在等待任务的线程（也就是没有被锁住的线程），因为它们可以检查线程池是否终止或者改变线程池的runState.
+
+实现代码
+private void interruptIdleWorkers(boolean onlyOne) {
+	final ReentrantLock mainLock = this.mainLock;
+	mainLock.lock();
+	try {
+		for(Worker w : workers) {
+			Thread t = w.thread;
+			if(!t.isInterrupted() && w.tryLock()) {  //如果线程没有终止且是空闲的
+				try {
+					t.interrupt();
+				} catch(SecurityException ignore) {
+				}finally {
+					w.unlock();
+				}
+			}
+			if(onleyOne) {
+				break;
+			}
+		}
+	}finally{
+		mainLock.unlock();
+	}
+}
+检查该线程，如果没有中断且没有任务执行，那么中断它。
+
+最后的onShutDown(); 调用的是ScheduledThreadPoolExecutor实现的，作用是取消和清除任务队列，因为shutdown的原因不在让任务执行。实现代码：
+
+先判断是否还有延时执行的任务或者周期性执行的任务，如果没有，获得任务队列后直接取消任务并清除任务链表；如果有，不管该线程是否是延迟的还是周期性的，或者是已经取消了的线程，都将其从任务队列中移除掉
