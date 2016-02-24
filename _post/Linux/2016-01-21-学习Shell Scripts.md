@@ -11,12 +11,12 @@
 
 #### 编写shell script注意事项
 
-在写shell script的时候我们需要遵守一些约定，这使得我们后期维护这些shell脚本时更加的方便，具体注意事项，[点击这里](http://www.google.com)
+在写shell script的时候我们需要遵守一些约定，这使得我们后期维护这些shell脚本时更加的方便，具体注意事项，[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/_post/Linux/2016-01-21-%E7%BC%96%E5%86%99Shell%20Scripts%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E5%92%8C%E7%BA%A6%E5%AE%9A.md)
 
 #### 如何运行一个shell script脚本
 
 假设程序文件名是`shell.sh`，那么如何执行这个shell脚本了？可以有以下几种方法
-* 将`shell.sh`加上可读与可执行（rx）的权限，然后就能够以`./shell.sh`来执行了（如何修改文件的权限？[点击这里]()）
+* 将`shell.sh`加上可读与可执行（rx）的权限，然后就能够以`./shell.sh`来执行了（如何修改文件的权限？[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/_post/Linux/2016-01-21-Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E4%BB%8B%E7%BB%8D.md)）
 * 直接以`sh shell.sh`的方式来直接执行即可
 
 #### shell script语法详解
