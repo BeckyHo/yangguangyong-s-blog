@@ -31,7 +31,7 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 
 示例：输入两个数，计算两个数相乘并输出结果
 
-代码：[点击这里sh01.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh01.sh)
 
 ##### 学会使用判断式
 
@@ -87,7 +87,7 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 * 若这个文件/路径存在，则判断他是个文件或目录，结果输出【filename is regular file】或【filename is directory】
 * 判断一下，使用者的身份对这个文件/目录所拥有的权限，并输出权限数据
 
-代码：[点击这里sh02.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh02.sh)
 
 ##### 利用判断符号[ ]
 
@@ -108,7 +108,7 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 
 利用中括号，&&与||来实现吧！
 
-代码：[点击这里sh03.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh03.sh)
 
 ##### Shell Script的预设变量（$0, $1...）
 
@@ -121,7 +121,7 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 
 示例：假设我要执行一个script，执行后，会自动列出自己的名称，还有后面接的前三个参数，该怎么做了？
 
-代码：[点击这里sh04.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh04.sh)
 
 ##### 条件判断式
 
@@ -141,7 +141,7 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 
 ___所以，要记得区分使用中括号的判断式中，&&与||在与指令下达的意义是不同的，比如[这个例子sh03.sh]()可以改写成这样：___
 
-代码：[点击这里sh05.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh05.sh)
 
 ___更复杂的if then语法___
 
@@ -161,7 +161,7 @@ ___更复杂的if then语法___
         当条件判断式一与二均不成立时，可以进行的指令工作内容
     fi
 
-此时上面这个[例子sh05.sh]()可以改写成这样：[点击这里sh06.sh]()
+此时上面这个[例子](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh05.sh)可以改写成这样：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh06.sh)
 
 ###### 利用 case .... esac 判断
 
@@ -189,7 +189,7 @@ if .... then .... fi对变量的判断中，是以比对的方式来分辨的，
 * 如果没有加任何参数，就提示使用者必须要使用hello参数
 * 如果不是hello参数，就提示只能使用这个参数
 
-代码：[点击这里sh07.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh07.sh)
 
 一般来说，使用【case $变量 in】这个语法中，当中的那个$边变量可以分为两种取得方式：
 
@@ -210,7 +210,7 @@ if .... then .... fi对变量的判断中，是以比对的方式来分辨的，
 
 示例：让使用者能够输入one, two, three，并且将使用者的变量显示到屏幕上，如果不是one, two, three时，就告知使用者只能有这三种选择
 
-代码：[点击这里sh08.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh08.sh)
 
 上面例子中，我们使用了function的内建变量，它的内建变量与shell script很类似，函数名称代表$0，而后续接的变量也是以$1,$2...来取代的～
 
@@ -238,7 +238,7 @@ if .... then .... fi对变量的判断中，是以比对的方式来分辨的，
 
 这种方式恰恰与while相反，它说的是【当condition条件成立时，就终止循环，否则就持续进行循环的程序段】是否刚好相反啊，我们以while来做个练习好了，假设我要让使用者输入yes或者是YES才结束程序的执行，否则就一直进行告知使用者输入字符串
 
-示例代码：[点击这里sh09.sh]()
+示例代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh09.sh)
 
 ###### for...do...done
 
@@ -256,7 +256,7 @@ if .... then .... fi对变量的判断中，是以比对的方式来分辨的，
 
 示例：使用for循环来进行1累加到100的循环
 
-代码：[点击这里sh10.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh10.sh)
 
 ###### for循环除了可以在数值方面使用外，还可以用在非数值方面，例如
 
@@ -273,7 +273,7 @@ if .... then .... fi对变量的判断中，是以比对的方式来分辨的，
 
 示例：我想要让使用者输入某个目录，然后我找出某目录内的文件名的权限呢
 
-代码：[点击这里sh11.sh]()
+代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh11.sh)
 ##### shell script的追踪与debug
 
 shell script在执行之前，最怕的就是出现问题了，那么我们如何debug呢？有没有办法不需要通过直接执行该script就可以来判断是否有问题呢？ 当然有了，我们直接以bash的相关参数来进行判断吧
