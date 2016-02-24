@@ -42,9 +42,8 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 `test`使用查询（test -e filename）
    测试的标志  |   代表意义    
 ---------------|---------------
-`关于filename类型的判断`         |
    -e          |   该【filename】是否存在？   
-|   -f          |   该【filename】是否为文件？ |
+   -f          |   该【filename】是否为文件？ 
 |   -d          |   该【filename】是否为目录？    |
 |   -b          |   该【filename】是否为一个block device装置？    |
 |   -c          |   该【filename】是否为一个character device装置？    |
