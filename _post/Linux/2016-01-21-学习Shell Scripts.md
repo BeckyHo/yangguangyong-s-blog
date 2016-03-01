@@ -139,7 +139,7 @@ shell script支持整数的算术运算，这些运算有：+，-，\*，/，%�
 * && 代表 AND
 * || 代表OR
 
-___所以，要记得区分使用中括号的判断式中，&&与||在与指令下达的意义是不同的，比如[这个例子sh03.sh]()可以改写成这样：___
+___所以，要记得区分使用中括号的判断式中，&&与||在与指令下达的意义是不同的，比如[这个例子](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh03.sh)可以改写成这样：___
 
 代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/2016-01-21-sh05.sh)
 
