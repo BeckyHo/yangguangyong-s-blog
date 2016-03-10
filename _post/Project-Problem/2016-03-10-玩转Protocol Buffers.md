@@ -63,3 +63,5 @@
 
 
 ![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/02/protobuf.png)
+
+下一篇讲解protobuf的另一种实现，也是目前我们项目使用的
