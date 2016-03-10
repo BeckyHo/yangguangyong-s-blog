@@ -57,4 +57,9 @@
 
 大部分情况下，序列化和反序列化是分开的；比如在我们项目中，前端将序列化的数据传送到后端，后端通过反序列化得到得到前端传过来的数据，但是我们的示例中把这两个过程写在了一起；
 
-首先创建一个java项目，把生成的PersonMsg.java放到它对应的package下，如果没有就是default package；接着导入protobuf-java-2.5.0.jar包；最后写测试类，代码：[点击这里](http://www.google.com)
+首先创建一个java项目，把生成的PersonMsg.java放到它对应的package下，如果没有就是default package；接着导入protobuf-java-2.5.0.jar包；最后写测试类，代码：[点击这里](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/code/03/2016-03-10-ProtobufTest.java)
+
+运行结果：
+
+
+![](https://github.com/yangguangyong/yangguangyong.github.io/blob/master/assets/2016/02/protobuf.png)
