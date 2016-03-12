@@ -70,7 +70,7 @@ DescriptorProtos.FileDescriptorProto proto: API介绍，它描述了一个.proto
 
 Descriptors.FileDescriptor[] dependencies
 
-FileDescriptor是FileDescriptorProto的一个属性，通常情况下都为null
+FileDescriptor是FileDescriptorProto的一个属性，它的意思就是这个proto文件是否import其他proto文件，如果有，那么它就表示当前proto文件中import的所有proto文件；如果没有import其他文件，那么dependencies数组就为null
 
 就是说，我们根据proto的文件对象file得到FileDescriptorSet，通过getFileList方法可以得到FileDescriptorProto，然后就可以调用FileDescriptor的静态方法buildFrom方法生成FileDescriptor实例喽
 
