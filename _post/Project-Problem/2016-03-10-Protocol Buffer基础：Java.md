@@ -363,3 +363,7 @@ repeated修饰的属性会有额外的方法————Count方法（就是返�
 一旦key在protocol message类中被使用，你可以使用迭代器（iterate）来操作这些属性值而不用往指定的类型中写入值。这是很有用的方式来使用反射从protocol buffer转换或者转变为其他格式，比如XML，或者JSON. 反射更先进的用法可能是找出两个message中相同的type属性的不同，或者开发一种正则表达式protocol buffer message, 这样你就可以根据编写的正则表达式来匹配message内容。使用你的想象力，来使得protocol buffer更加的被广泛使用
 
 反射在Message和Message.Builder接口中提供
+
+#### 可以参考的文章
+
+[Google Protocol Buffer使用原理](http://www.ibm.com/developerworks/cn/linux/l-cn-gpb/?ca=drs-tp4608#ibm-pcon),这篇文章详细的讲解了Protocol Buffer的简单使用，高级使用（动态编译），protbuf编码，如何存储key-value对等细节，是一篇不错的文章
