@@ -19,16 +19,22 @@ SELECT没有ORDER BY子句时的默认排序方式是什么？
 
 * 不要依赖mysql的默认排序方式，也就是不能依赖缺失order by子句的select返回结果
 * 如果你想排序，就指定order by子句吧
-* group by加强了order by(这与标准语法冲突，可以使用order by null来避免冲突)不懂？？
+* group by加强了order by
 
 `SELECT * FROM tbl` 这条语句会做表扫描，如果没有做任何delete/replace/update操作，select
 将以插入数据顺序依次返回
 
-如果你是在InnoDb表中做同样的查询，返回数据将以primary key排序，而不是以插入顺序。这是mysql
-底层实现的，不会依赖插入等操作
+如果你是在InnoDb表中做同样的查询，会按主键的顺序排列，但是这是不靠谱的
 
+select不加order by时， MySQL会尝试以尽可能快的方法（MySQL 实际的方法不见得快）返回数据。
+由于访问主键、索引大多数情况会快一些（在Cache里）所以返回的数据有可能以主键、索引的顺序输出，
+这里并不会真的进行排序，主要是由于主键、索引本身就是排序放到内存的，所以连续输出时可能是某种序列。
+在一些情况下消耗硬盘寻道时间最短的数据会先返回。如果只查询单个表，在特殊的情况下是有规律的。
 ___
 
+总结：
+
+order by是要加的，我们对于翻页等逻辑必须默认加上order by排序，而且order by的字段如果有重复值，必须指定第二排序字段，如果第二排序字段还有重复值，那必须指定更多的字段，直到所有的排序字段能够指定唯一顺序。
+
 再来看看我们项目中的select语句，首先，我们的表是InnoDB表，主键是(ZoneId, Rank),
-也就是说，select还是会根据Rank字段有序的返回，而不是结果不确定，所以说`SELECT * FROM ArenaRank WHERE ZoneId=?`
-是对的
+也就是说，select还是会根据Rank字段有序的返回，而不是结果不确定，所以说`SELECT * FROM ArenaRank WHERE ZoneId=?`还是得加上order by子句吧
