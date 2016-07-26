@@ -128,3 +128,7 @@ GenericObjectPool的borrowObject方法的一部分, 当空闲队列中没有对�
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/pool_jedis04.png)
 
 create()方法中, 最终调用factory的makeObject()方法创建新的对象, 然后createCount计数器加1, 也将新对象保存到allObjects中
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/pool_jedis05.png)
+
+makeObject()方法, 也就是JedisFactory实现PooledObjectFactory<T>并重写的方法, 当需要新的redis实例时, 都会在这里创建新的redis实例
