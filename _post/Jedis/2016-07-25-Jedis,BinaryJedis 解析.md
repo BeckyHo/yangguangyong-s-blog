@@ -62,12 +62,21 @@ BinaryClient继承Connection, 该set()方法中调用Connection的sendCommand()�
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/proto_info.png)
 
+通过以上分析, 整个redis的客户端类都已经清楚了. 到此, 我们可以给客户端做个划分
+
+* 原生客户端: BinaryClient, 它继承Connection. 封装了redis的所有命令. 它是redis客户端的二进制版本, 所有参数都是byte[]数组.BinaryClient通过父类Connection的sendCommand调用Protocol的sendCommand往redis发送命令; Client可以看作BinaryClient的高级版本, 方法参数都是String类型, 并通过SafeEncoder转换成byte数组, 在调用父类BinaryClient对应的方法
+* Jedis客户端: 平时我们都使用Jedis类封装的客户端, 它通过调用Client的方法, 在调用BinaryClient方法来完成操作; 此外还有BinaryJedis, 它调用的是BinaryClient的方法完成操作
+
+
 #### JedisPool
 
-Jedis客户端是单线程，当Jedis被很多实例调用时自然就不够用，此时就需要考虑使用池。
-Jedis这里使用Apache的GenericObjectPool。实现起来也是很简单,将jedis保存在其中。
-另外就是需要有个Factory来生成Jedis对象。这个Factory是JedisPoll类的一个内部类
-JedisFactory继承自BasePoolableObjectFactory。重写了makeObject(),destroyObject(final Object obj),validateObject(final Object obj)三个方法。
+Jedis客户端是单线程, 当Jedis被很多实例调用时自然就不够用, 此时就需要考虑使用池.
+Jedis这里使用Apache的GenericObjectPool. 实现起来也是很简单, 将jedis保存在其中.
+另外就是需要有个Factory来生成Jedis对象--JedisFactory实现apache的PooledObjectFactory. 重写了makeObject(),destroyObject(final Object obj),validateObject(final Object obj)等方法.
+
+JedisPool继承关系
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/jedispool.png)
 
 ##### JedisPool初始化
 
@@ -91,4 +100,31 @@ initPool()方法中，先判断当前jedis池是否为null, 如果不为null, �
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/jedispool4.png)
 
-初始化factory, 配置信息，完成初始化操作
+调用GenericObjectPool的构造方法, 完成初始化操作
+
+这里要讲解一下, GenericObjectPool的基本属性
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/genericObjectPool_attri.png)
+
+它维护三个主要属性:
+* allObjects: 将生成的对象put到这个map属性中, 每个对象都有唯一标识符作为key与之对应
+* createCount: 一个AtomicLong对象, 用来记录当前创建了多少个对象. 当pool中没有空闲对象需要创建新对象时, 需要判断当前createCount是否小于maxTotal(最大维护的对象个数)
+* idleObjects: 一个阻塞队列, 保存当前空闲的对象, 若队列中有空闲对象, 每次都使用队列中的第一个对象(也是最活跃的对象)
+
+#### 从JedisPool中获取Jedis对象
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/pool_jedis01.png)
+
+调用JedisPool的getResource()方法, 它调用父类的getResource()方法
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/pool_jedis02.png)
+
+Pool的getResource()方法, 调用GenericObjectPool的borrowObject()方法
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/pool_jedis03.png)
+
+GenericObjectPool的borrowObject方法的一部分, 当空闲队列中没有对象时, 调用create()方法创建新的对象
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/pool_jedis04.png)
+
+create()方法中, 最终调用factory的makeObject()方法创建新的对象, 然后createCount计数器加1, 也将新对象保存到allObjects中
