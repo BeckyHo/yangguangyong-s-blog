@@ -29,11 +29,16 @@ socket初始化
 
 #### Jedis命令执行流程
 
-以set(final String key, final String value)为例
+以Jedis#set(final String key, final String value)为例, 流程为:
+
+Jedis#set(key, value) ---> Client#set(key, value) ---> BinaryClient#set(key, value) --->
+Connection#sendCommand(ProtocolCommand cmd, byte[]... args) ---> Protocol#sendCommand(RedisOutputStream os, byte[] command, byte[]... args)
+
+从流程中可知, 最终使用Connection提供的RedisOutputStream类将数据写到redis服务器端, 完成set操作. 看下代码
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/jedis_set.png)
 
-使用父类BinaryJedis的Client实例的set方法
+Jedis#set()方法, 调用Client实例的set方法
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/client_set.png)
 
@@ -42,12 +47,18 @@ socket初始化
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/binaryclient_set.png)
 
-BinaryClient中静态导入了Protocol类的sendCommand方法，跟进去
+BinaryClient继承Connection, 该set()方法中调用Connection的sendCommand()方法, 跟进去
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/conn_set.png)
+
+从该方法可知, 它调用了Protocol的sendCommand()方法, 并传递了RedisOutputStream实例
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/protocol_set.png)
 
 查看Protocol可知，最终所有的set方法都会调用sendCommand(final RedisOutputStream os, final byte[] command, final byte[]... args)，
 该方法中，使用Connection中初始化的RedisOutputStream属性将数据写入到redis的服务器端，完成set操作
+
+总体流程如下, socket建立连接并初始化RedisInputStream/RedisOutputStream类, get操作就是使用input流读取数据; set操作就是使用output写入数据
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/proto_info.png)
 
