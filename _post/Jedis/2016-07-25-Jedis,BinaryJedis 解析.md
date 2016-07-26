@@ -7,25 +7,25 @@ Jedis是Redis为Java语言提供的连接Redis代码，我们最常用到的两�
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/jedis02.png)
 
-通过源码可知，设置/读取redis数据时可以传递String类型参数，也可以传递byte数组。最终调用
+通过源码可知，设置/读取redis数据时可以传递String类型参数，也可以传递byte数组。最终调用了
 Protocol的sendCommand()方法实现与redis服务端的交互
 
 #### redis如何连接服务器
 
 redis客户端连接服务器是在Connection中完成的，通过源码可知，Connection维护一个Socket（socket客户端实现），
-一个RedisOutputStream和RedisInputStream(它们相当于java i/o中的装饰者,继承了FilterOutputStream)
+一个RedisOutputStream和RedisInputStream(属于java i/o族中的装饰者,继承了FilterOutputStream)
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/conn_attri.png)
+
+socket初始化
+
+![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/conn_attri_init.png)
 
 #### redis断开服务器连接
 
 ![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/conn_close.png)
 
 先flush写的缓冲区，然后关闭socket连接
-
-Connection属性初始化代码
-
-![](https://github.com/yangguangyong/yangguangyong-s-blog/blob/master/assets/2016/07/conn_attri_init.png)
 
 #### Jedis命令执行流程
 
