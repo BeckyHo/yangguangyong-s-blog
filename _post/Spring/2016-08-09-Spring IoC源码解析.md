@@ -666,13 +666,13 @@ parseBeanDefinitions(root, this.delegate)方法, 跟进去:
                 // 如果该结点是Element结点, 也就是说该结点中配置有属性
 				if (node instanceof Element) {
 					Element ele = (Element) node;
-                    // 判断该结点是否是<beans />结点
+                    // 判断该结点是否使用Spring默认的命名空间
 					if (delegate.isDefaultNamespace(ele)) {
-                        // 是<beans />根结点
+                        // 使用Spring的bean规则解析元素节点
 						parseDefaultElement(ele, delegate);
 					}
 					else {
-                        // 不是<beans />根结点
+                        // 使用用户自定义的解析规则
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -683,7 +683,7 @@ parseBeanDefinitions(root, this.delegate)方法, 跟进去:
 		}
 	}
 
-我们先看不是<beans />根结点的处理方式, 跟进去parseCustomElement(Element ele)方法
+我们先看用户自定义结点的处理方式, 跟进去parseCustomElement(Element ele)方法
 
     public BeanDefinition parseCustomElement(Element ele) {
         return parseCustomElement(ele, null);
@@ -721,7 +721,7 @@ parse()方法在NamespaceHandlerSupport中实现, 跟进去:
 		return parser;
 	}
 
-从已经注册的map中根据结点名得到对应的bean解析器 BeanDefinitionParser. 没看到解析bean的代码？？
+从已经注册的map中根据结点名得到对应的bean解析器 BeanDefinitionParser. 
 
 如果是默认的命名空间, 调用parseDefaultElement(ele, delegate)方法
 
