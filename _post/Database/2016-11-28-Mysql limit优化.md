@@ -85,7 +85,9 @@ mysql的索引数据结构是b+tree, 当使用电梯方式时，用户指定翻�
 问题: 如何知道需要id > 1000之后的数据了？ 怎么记录这个1000?
 
 可以这么做，在用户第一次翻页到某个offset时，在redis中直接保存该offset对应的id是多少，也就是[offset, id]对，当有其他请求
-来查找offset之后的数据时，可以从该offset对应id的位置之后往后扫描。如果列表的数据发生了变化，需要及时将redis中保存的[offset, id]删除掉,
+来查找offset之后的数据时，可以从该offset对应id的位置之后往后扫描。如果列表的数据发生了变化，需要及时将redis中保存的[offset, id]删除掉.
 
 方式2: 使用"延迟关联"查询, 比如 select film_id, description from file order by title limit 50, 5; 如果这个表非常大, 可以将这个查询改写成下面的样子: select film_id, description from film inner join(select film_id from film order by title limit 50, 5) as lim using(film_id); 
 这里的"延迟关联"将大大提升查询效率, 它让MySQL扫描尽可能少的页面, 获取需要访问的记录后再根据关联列回原表查询需要的所有列.
+
+方式3: 使用索引覆盖扫描, 因为mysql中的数据是按照索引来排序的，我们可以利用这一点.
