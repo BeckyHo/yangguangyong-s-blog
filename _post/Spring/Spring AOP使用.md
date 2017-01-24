@@ -1,4 +1,4 @@
-#### 使用场景
+#### Spring AOP使用
 
 Spring AOP在处理非业务逻辑时很实用，比如
 
@@ -12,6 +12,7 @@ Spring AOP在处理非业务逻辑时很实用，比如
 
 #### AOP中常用术语
 先介绍Spring AOP中常用的术语，有助于之后对AOP的理解：
+
 * 切面(Aspect): 横切关注点(跨越应用程序多个模块的功能)被模块化的特殊对象
 * 通知(Advice): 切面必须要完成的工作
 * 目标(Target): 被通知的对象
@@ -21,16 +22,25 @@ Spring AOP在处理非业务逻辑时很实用，比如
 
 #### Spring中AOP的使用表现形式--5种通知
 AOP也就是面向切面编程，它可以在我们想要调用的某个方法前后做一些特殊化的操作，具体表现分为5中通知，分别是:
+
 * 前置通知---@Before
 * 后置通知---@After
 * 返回通知---@AfterReturning
 * 异常通知---@AfterThrowing
 * 环绕通知---@Around
 
-#### 使用这些通知的步骤
+#### AOP基于注解使用步骤
 1. 把横切关注点的代码抽象到切面的类中；切面首先是一个IOC中的bean, 即加入@Component注解，切面还需要加入@Aspect注解
 2. 在切面类中声明各种通知，比如在一个方法前加入@Before注解
 3. 在配置文件中加入如下配置，它让AspectJ注解起作用，自动为匹配的类生成代理对象<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+#### AOP基于xml使用步骤
+1. 在xml中配置bean
+2. aop:config配置
+	* 配置一个通用的pointcut(可选)
+	* 配置切面aop:aspect
+	* 在切面中配置切入点
+
 
 #### 几种使用介绍
 前置通知： 在目标方法开始之前执行
