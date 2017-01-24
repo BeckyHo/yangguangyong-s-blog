@@ -84,3 +84,34 @@ AOP也就是面向切面编程，它可以在我们想要调用的某个方法�
       
       // 后置通知
     }
+
+#### 访问目标方法参数
+如果需要访问目标方法的一些信息, 需要在切入点方法中定义一个JoinPoint参数, 即可访问得到目标方法的信息. 例如：
+
+    Object[] args = joinPoint.getArgs();
+    Signature signature = joinPoint.getSignature();
+    Class declaringType = signature.getDeclaringType();
+    String declaringTypeName = signature.getDeclaringTypeName();
+    int modifiers = signature.getModifiers();
+    String name = signature.getName();
+
+* getArgs(): 获取调用目标方法的入参
+* getDeclaringType(): 获取目标方法所在对象类型
+* getDeclaringTypeName(): 获取目标方法所在类的完整类名(包名+类名)
+* getModifiers(): 获取目标方法修饰符类型
+* getName(): 获取目标方法名称
+
+对于环绕通知@Around, 它必须有返回值, 且这个返回值就是目标方法的返回值
+
+    @Around("execution(public int com.aop.Logic.add(int, int))")
+    public Object aroundMethod(ProceedingJoinPoint joinPoint) {
+    	try {
+        	// 调用目标方法并得到返回值
+        	Object proceed = joinPoint.proceed();
+            return proceed;
+        } catch(Throwable t) {
+        	t.printStackTrace();
+        }
+        
+        return null;
+    }
